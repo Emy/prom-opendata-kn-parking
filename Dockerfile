@@ -8,7 +8,7 @@ RUN go mod download
 COPY *.go ./
 COPY internal ./internal
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /prom-opendata-kn-parking
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-s -w" -o /prom-opendata-kn-parking
 
 EXPOSE 4276
 
