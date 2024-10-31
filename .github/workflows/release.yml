@@ -32,3 +32,5 @@ jobs:
       uses: softprops/action-gh-release@v2.0.8
       with:
           files: prom-opendata-kn-parking
+          generate_release_notes: true
+          make_latest: true
