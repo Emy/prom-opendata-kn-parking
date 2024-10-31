@@ -70,4 +70,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: emy/prom-opendata-kn-parking:latest
+          tags: ghcr.io/emy/prom-opendata-kn-parking:latest
