@@ -86,7 +86,7 @@ func updatePrometheusData() {
 			logger.Debug(fmt.Sprintf("Feature ID: %d, Real Free Capacity (real_fcap): %d\n", feature.Attributes.ObjectID, &capacityFree))
 			freeSpaces.With(prometheus.Labels{"lot": lot}).Set(capacityFree)
 			if feature.Attributes.RealCapa > 0 {
-				occupancy := float64(1 - (int(capacityFree) / capacityAvailable))
+				occupancy := 1.0 - (float64(capacityFree) / float64(capacityAvailable))
 				occupancyRate.With(prometheus.Labels{"lot": lot}).Set(occupancy)
 			} else {
 				occupancyRate.With(prometheus.Labels{"lot": lot}).Set(-1)
