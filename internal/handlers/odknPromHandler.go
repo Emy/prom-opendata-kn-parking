@@ -44,7 +44,7 @@ var freeSpaces = prometheus.NewGaugeVec(
 		Name:      "free_spaces",
 		Help:      "Number of free parking spaces per parking lot in Constance",
 	},
-	[]string{"lot"}, // Labels for grouping
+	[]string{"lot", "lat", "lon"}, // Labels for grouping
 )
 
 var occupancyRate = prometheus.NewGaugeVec(
@@ -53,7 +53,7 @@ var occupancyRate = prometheus.NewGaugeVec(
 		Name:      "occupancy_rate",
 		Help:      "Occupancy rate per parking lot in Constance (0 to 1 scale)",
 	},
-	[]string{"lot"}, // Labels for grouping
+	[]string{"lot", "lat", "lon"}, // Labels for grouping
 )
 
 // This function is being called to initialize all needed handlers and event schedulers that are required for an automatic
@@ -80,21 +80,23 @@ func updatePrometheusData() {
 
 	for _, feature := range types.ODKNParkingAPIResponse(*fetchedData).Features {
 		lot := feature.Attributes.Name
+		lat := fmt.Sprintf("%f", feature.Attributes.Lat)
+		lon := fmt.Sprintf("%f", feature.Attributes.Lon)
 		if feature.Attributes.RealFCap != nil {
 			capacityFree := float64(*feature.Attributes.RealFCap)
 			capacityAvailable := feature.Attributes.RealCapa
 			logger.Debug(fmt.Sprintf("Feature ID: %d, Real Free Capacity (real_fcap): %d\n", feature.Attributes.ObjectID, &capacityFree))
-			freeSpaces.With(prometheus.Labels{"lot": lot}).Set(capacityFree)
+			freeSpaces.With(prometheus.Labels{"lot": lot, "lat": lat, "lon": lon}).Set(capacityFree)
 			if feature.Attributes.RealCapa > 0 {
 				occupancy := 1.0 - (float64(capacityFree) / float64(capacityAvailable))
-				occupancyRate.With(prometheus.Labels{"lot": lot}).Set(occupancy)
+				occupancyRate.With(prometheus.Labels{"lot": lot, "lat": lat, "lon": lon}).Set(occupancy)
 			} else {
-				occupancyRate.With(prometheus.Labels{"lot": lot}).Set(-1)
+				occupancyRate.With(prometheus.Labels{"lot": lot, "lat": lat, "lon": lon}).Set(-1)
 			}
 		} else {
 			logger.Debug(fmt.Sprintf("Feature ID: %d, Real Free Capacity (real_fcap): null\n", feature.Attributes.ObjectID))
-			freeSpaces.With(prometheus.Labels{"lot": lot}).Set(-1)
-			occupancyRate.With(prometheus.Labels{"lot": lot}).Set(-1)
+			freeSpaces.With(prometheus.Labels{"lot": lot, "lat": lat, "lon": lon}).Set(-1)
+			occupancyRate.With(prometheus.Labels{"lot": lot, "lat": lat, "lon": lon}).Set(-1)
 		}
 	}
 
